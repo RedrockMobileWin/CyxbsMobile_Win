@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 
 namespace ZSCY_Win10.ViewModels
 {
-    public class BigDataViewModel:BasePageViewModel
+    public class BigDataViewModel : BasePageViewModel
     {
         private double _page_height;
         private double _page_width;
@@ -34,6 +30,22 @@ namespace ZSCY_Win10.ViewModels
             {
                 _page_width = value;
                 RaisePropertyChanged(nameof(Page_Width));
+            }
+        }
+
+        //子标题
+        private ObservableCollection<ZSCY.Models.BigData> _header;
+
+        public ObservableCollection<ZSCY.Models.BigData> Header
+        {
+            get
+            {
+                return _header;
+            }
+            set
+            {
+                _header = value;
+                RaisePropertyChanged(nameof(Header));
             }
         }
     }

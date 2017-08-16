@@ -1,23 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 
 namespace ZSCY.Models
 {
     public class SexRatio
     {
-        public int Male { set; get; }
-        public string MaleRatio { set; get; }
-        public int Female { set; get; }
-        public string FemaleRatio { set; get; }
-        public SexRatio(int M,string MR,int F,string FR)
+        public class Rootobject
         {
-            Male = M;
-            MaleRatio = MR;
-            Female = F;
-            FemaleRatio = FR;
+            public int Status { get; set; }
+            public string Info { get; set; }
+            public string Version { get; set; }
+            public ObservableCollection<Datum> Data { get; set; }
+        }
+
+        public class Datum
+        {
+            public string college { get; set; }
+            public string MenRatio { get; set; }
+            public string WomenRatio { get; set; }
         }
     }
 }

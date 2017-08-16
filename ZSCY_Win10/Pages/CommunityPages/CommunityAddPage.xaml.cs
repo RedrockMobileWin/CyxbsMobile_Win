@@ -3,12 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -17,13 +11,11 @@ using Windows.UI.Core;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using ZSCY_Win10.Data;
+using ZSCY_Win10.Models.TopicModels;
 using ZSCY_Win10.Util;
 
 // “空白页”项模板在 http://go.microsoft.com/fwlink/?LinkId=234238 上有介绍
@@ -35,9 +27,10 @@ namespace ZSCY_Win10.Pages.CommunityPages
     /// </summary>
     public sealed partial class CommunityAddPage : Page
     {
-        ObservableCollection<CommunityImageList> imageList = new ObservableCollection<CommunityImageList>();
-        ApplicationDataContainer appSetting = Windows.Storage.ApplicationData.Current.LocalSettings;
+        private ObservableCollection<CommunityImageList> imageList = new ObservableCollection<CommunityImageList>();
+        private ApplicationDataContainer appSetting = Windows.Storage.ApplicationData.Current.LocalSettings;
         private static string resourceName = "ZSCY";
+        private Topic para;
 
         public CommunityAddPage()
         {
@@ -60,10 +53,18 @@ namespace ZSCY_Win10.Pages.CommunityPages
                         commandbar.Margin = new Thickness(48, 0, 0, 0);
                     }
                 }
-
             };
             SystemNavigationManager.GetForCurrentView().BackRequested += App_BackRequested;
+        }
 
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            var item = e.Parameter;
+            if (item is Topic)
+            {
+                para = item as Topic;
+                addContentTextBox.Text = para.keyword;
+            }
         }
 
         private void App_BackRequested(object sender, BackRequestedEventArgs e)
@@ -206,7 +207,6 @@ namespace ZSCY_Win10.Pages.CommunityPages
                         string imgUp = await NetWork.headUpload(credentialList[0].UserName, imageList[i].imgAppPath, "http://hongyan.cqupt.edu.cn/cyxbsMobile/index.php/Home/Photo/uploadArticle", false);
                         if (imgUp != "" && imgUp.IndexOf("Request Entity Too Large") == -1)
                         {
-
                             JObject obj = JObject.Parse(imgUp);
                             if (Int32.Parse(obj["state"].ToString()) == 200)
                             {
@@ -221,7 +221,6 @@ namespace ZSCY_Win10.Pages.CommunityPages
                                 imgPhoto_src = imgPhoto_src.Replace("http://hongyan.cqupt.edu.cn/cyxbsMobile/Public/photo/", "");
                                 imgThumbnail_src = imgThumbnail_src.Replace("http://hongyan.cqupt.edu.cn/cyxbsMobile/Public/photo/thumbnail/", "");
                             }
-
                         }
                         else if (imgUp.IndexOf("Request Entity Too Large") != -1)
                         {
@@ -256,7 +255,6 @@ namespace ZSCY_Win10.Pages.CommunityPages
                         StorageFile imgfile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(imageList[i].imgAppPath));
                         imgfile.DeleteAsync();
                     }
-
                 }
                 catch (Exception) { }
                 if (imgPhoto_src != "")
@@ -270,9 +268,14 @@ namespace ZSCY_Win10.Pages.CommunityPages
             }
             addProgressBar.IsIndeterminate = true;
 
-
             List<KeyValuePair<String, String>> paramList = new List<KeyValuePair<String, String>>();
-            paramList.Add(new KeyValuePair<string, string>("type_id", "5")); //现在只有哔哔叨叨
+            if (para != null)
+            {
+                paramList.Add(new KeyValuePair<string, string>("type_id", "7")); //rua
+                paramList.Add(new KeyValuePair<string, string>("topic_id", para.topic_id.ToString())); //rua
+            }
+            else
+                paramList.Add(new KeyValuePair<string, string>("type_id", "5")); //现在只有哔哔叨叨
             paramList.Add(new KeyValuePair<string, string>("title", addContentTextBox.Text));
             //paramList.Add(new KeyValuePair<string, string>("user_id", appSetting.Values["Community_people_id"].ToString())); //记得改了
             paramList.Add(new KeyValuePair<string, string>("content", addContentTextBox.Text));
@@ -282,7 +285,13 @@ namespace ZSCY_Win10.Pages.CommunityPages
             //paramList.Add(new KeyValuePair<string, string>("idNum", appSetting.Values["idNum"].ToString()));
             paramList.Add(new KeyValuePair<string, string>("stuNum", credentialList[0].UserName));
             paramList.Add(new KeyValuePair<string, string>("idNum", credentialList[0].Password));
-            string ArticleUp = await NetWork.getHttpWebRequest("cyxbsMobile/index.php/Home/Article/addArticle", paramList);
+            string ArticleUp = "";
+            if (para != null)
+            {
+                ArticleUp = await NetWork.getHttpWebRequest("cyxbsMobile/index.php/Home/Topic/addTopicArticle", paramList);
+            }
+            else
+                ArticleUp = await NetWork.getHttpWebRequest("cyxbsMobile/index.php/Home/Article/addArticle", paramList);
             Debug.WriteLine(ArticleUp);
             try
             {
@@ -314,9 +323,7 @@ namespace ZSCY_Win10.Pages.CommunityPages
             catch (Exception) { }
             addArticleAppBarButton.IsEnabled = true;
             addProgressBar.Visibility = Visibility.Collapsed;
-
         }
-
 
         private void addTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -324,7 +331,6 @@ namespace ZSCY_Win10.Pages.CommunityPages
                 addArticleAppBarButton.IsEnabled = true;
             else
                 addArticleAppBarButton.IsEnabled = false;
-
         }
 
         private void addContentTextBox_KeyUp(object sender, KeyRoutedEventArgs e)
@@ -336,7 +342,6 @@ namespace ZSCY_Win10.Pages.CommunityPages
                     addContentTextBox.Text += "\r\n";
                 addContentTextBox.SelectionStart = addContentTextBox.Text.Length;
             }
-
         }
     }
 }

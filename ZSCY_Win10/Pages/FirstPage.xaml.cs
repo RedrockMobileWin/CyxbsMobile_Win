@@ -1,19 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+﻿using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
+using ZSCY_Win10.Pages;
 
 // “空白页”项模板在 http://go.microsoft.com/fwlink/?LinkId=234238 上有介绍
 
@@ -55,7 +45,6 @@ namespace ZSCY.Pages
                     second_frame_trans.X = this.Width;
                 }
             }
-
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -65,14 +54,7 @@ namespace ZSCY.Pages
             if (e.NavigationMode == NavigationMode.New)
             {
                 viewmodel.Page_Height = this.Height;
-                if (this.Width >= 800)
-                {
-                    viewmodel.Page_Width = (this.Width - 30) / 2;
-                }
-                else
-                {
-                    viewmodel.Page_Width = this.Width;
-                }
+                viewmodel.Page_Width = this.ActualWidth;
             }
         }
 
@@ -95,16 +77,8 @@ namespace ZSCY.Pages
 
         private void FirstPage_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (e.NewSize.Width <= 800)
-            {
-                viewmodel.Page_Height = e.NewSize.Height;
-                viewmodel.Page_Width = e.NewSize.Width;
-            }
-            else
-            {
-                viewmodel.Page_Height = e.NewSize.Height;
-                viewmodel.Page_Width = (e.NewSize.Width - 30) / 2;
-            }
+            //viewmodel.Page_Height = e.NewSize.Height;
+            viewmodel.Page_Width = 375;//375是个人认为比较合适的宽度
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -124,11 +98,15 @@ namespace ZSCY.Pages
                     }; break;
                 case 1:
                     {
-                        second_frame.Navigate(typeof(BigDataPage));
+                        second_frame.Navigate(typeof(FengCaiPage));
                     }; break;
                 case 2:
                     {
-                        second_frame.Navigate(typeof(FengCaiPage));
+                        second_frame.Navigate(typeof(BigDataPage));
+                    }; break;
+                case 3:
+                    {
+                        second_frame.Navigate(typeof(JunxunPage));
                     }; break;
             }
         }
